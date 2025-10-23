@@ -1,0 +1,18 @@
+{
+  "claim": "The Eiffel Tower is taller than 300 meters.",
+  "truth_score": 96,
+  "verdict": "Likely True",
+  "evidence": [
+    {
+      "source": "Official Paris tourism site",
+      "url": "https://example.com/eiffel",
+      "excerpt": "The Eiffel Tower stands at 324 meters including antennas."
+    },
+    {
+      "source": "Encyclopedia entry",
+      "url": "https://example.com/encyclopedia/eiffel",
+      "excerpt": "Height measured at 300m to the top platform; 324m to tip."
+    }
+  ],
+  "explanation": "Multiple reputable sources confirm the height exceeds 300 meters."
+}
