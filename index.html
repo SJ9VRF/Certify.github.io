@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CertiFy — Multimodal AI Fact-Checking</title>
+  <meta name="description" content="CertiFy: Multimodal AI platform for instant, explainable fact-checking across text, image, audio, and video." />
+  <link rel="icon" href="assets/logo.svg" />
+  <style>
+    :root{
+      --bg:#0b1021;
+      --bg-2:#0f1733;
+      --panel:#101836;
+      --ink:#e9eef9;
+      --muted:#b8c3e1;
+      --brand:#00D1FF;
+      --brand-2:#7C4DFF;
+      --line:#2b3a72;
+      --success:#22c55e;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% 0%, rgba(0,209,255,.08), transparent 60%),
+        radial-gradient(1000px 600px at 90% 20%, rgba(124,77,255,.10), transparent 60%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      min-height:100dvh;
+    }
+    /* Sidebar */
+    .sidebar{
+      position:sticky; top:0; align-self:start; height:100vh;
+      background:linear-gradient(180deg, #0f1733, #0b1021);
+      border-right:1px solid var(--line);
+      padding:20px 16px;
+      transition:transform .35s ease;
+      z-index:50;
+    }
+    .sidebar header{
+      display:flex; align-items:center; gap:10px; margin-bottom:14px;
+    }
+    .logo{display:flex; align-items:center; gap:10px}
+    .logo img{width:36px;height:36px}
+    .logo .name{font-weight:800; letter-spacing:.2px}
+    nav a{
+      display:flex; align-items:center; gap:10px; padding:12px 12px; border-radius:10px;
+      color:var(--ink);
+    }
+    nav a:hover{background:#0e1530}
+    nav a .dot{width:8px;height:8px;border-radius:50%;background:var(--brand)}
+    .menu-title{font-size:12px; text-transform:uppercase; color:var(--muted); margin:16px 12px 8px}
+    .sidebar .cta{
+      margin-top:auto; padding:14px; border:1px solid var(--line); border-radius:12px; background:#0e1530;
+    }
+    .sidebar .cta button{
+      width:100%; padding:12px 14px; border-radius:10px; border:0;
+      background:linear-gradient(90deg,var(--brand),var(--brand-2)); color:white; font-weight:700; cursor:pointer;
+    }
+    /* Toggle */
+    .toggle{
+      position:fixed; left:12px; top:12px; z-index:60;
+      border:1px solid var(--line); background:#0e1530; color:var(--ink);
+      border-radius:12px; padding:8px 12px; cursor:pointer;
+      box-shadow:0 6px 24px rgba(0,0,0,.35);
+    }
+    .toggle:hover{filter:brightness(1.1)}
+    .sidebar.hide{transform:translateX(-110%)}
+    @media (max-width: 980px){
+      .container{grid-template-columns:1fr}
+      .sidebar{position:fixed; left:0; top:0; width:270px}
+      main{padding-left:0}
+    }
+    /* Main */
+    main{padding:28px 28px 80px; max-width:1200px; margin:0 auto}
+    .hero{
+      display:grid; grid-template-columns: 1.1fr .9fr; gap:28px;
+      align-items:center; margin-top:28px;
+    }
+    .hero .card{
+      background:linear-gradient(180deg,#0f1733 0%, #0d1430 100%);
+      border:1px solid var(--line);
+      border-radius:16px; padding:24px; box-shadow:0 12px 36px rgba(0,0,0,.35);
+    }
+    h1{font-size:clamp(32px, 4vw, 48px); line-height:1.1; margin:0 0 12px}
+    .lead{color:var(--muted); font-size:18px; margin:10px 0 20px}
+    .actions{display:flex; gap:12px; flex-wrap:wrap}
+    .btn{
+      display:inline-flex; align-items:center; gap:10px; border:0; cursor:pointer;
+      padding:12px 16px; border-radius:12px; font-weight:700;
+    }
+    .btn-primary{background:linear-gradient(90deg, var(--brand), var(--brand-2)); color:white}
+    .btn-secondary{background:#0e1530; color:var(--ink); border:1px solid var(--line)}
+    .pill{display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid var(--line); color:var(--muted)}
+    /* Sections */
+    section{margin-top:64px}
+    .grid{display:grid; gap:18px}
+    .grid.cols-3{grid-template-columns:repeat(3, 1fr)}
+    .grid.cols-2{grid-template-columns:repeat(2, 1fr)}
+    @media (max-width:900px){ .grid.cols-3, .grid.cols-2{grid-template-columns:1fr} }
+    .tile{
+      background:linear-gradient(180deg,#0f1733 0%, #0d1430 100%);
+      border:1px solid var(--line); border-radius:14px; padding:18px; min-height:100px;
+    }
+    .kpi{display:flex; gap:18px; flex-wrap:wrap}
+    .kpi .box{background:#0e1530; border:1px solid var(--line); border-radius:12px; padding:16px; min-width:180px}
+    .code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      background:#0e1530;border:1px solid var(--line); border-radius:12px; padding:14px; overflow:auto;
+    }
+    .badge{font-size:11px; color:#93c5fd; background:#0e1530; border:1px solid #1e3a8a; padding:4px 8px; border-radius:999px}
+    .footer{
+      margin-top:64px; padding-top:24px; border-top:1px solid var(--line);
+      color:var(--muted); display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between;
+    }
+    .logo-inline{display:flex; align-items:center; gap:10px}
+    .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(1px,1px,1px,1px)}
+  </style>
+</head>
+<body>
+  <button class="toggle" aria-controls="sidebar" aria-expanded="true" id="menuToggle">☰ Menu</button>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <header>
+        <div class="logo">
+          <img src="assets/logo.svg" alt="CertiFy logo" />
+          <span class="name">CertiFy</span>
+        </div>
+      </header>
+      <div class="menu-title">Navigation</div>
+      <nav>
+        <a href="#home"><span class="dot" aria-hidden="true"></span> Home</a>
+        <a href="#features"><span class="dot" aria-hidden="true"></span> Features</a>
+        <a href="#demo"><span class="dot" aria-hidden="true"></span> Live Demo</a>
+        <a href="#pricing"><span class="dot" aria-hidden="true"></span> Pricing</a>
+        <a href="#integrations"><span class="dot" aria-hidden="true"></span> Integrations</a>
+        <a href="#security"><span class="dot" aria-hidden="true"></span> Security</a>
+        <a href="#api"><span class="dot" aria-hidden="true"></span> API</a>
+        <a href="#team"><span class="dot" aria-hidden="true"></span> Team</a>
+        <a href="#contact"><span class="dot" aria-hidden="true"></span> Contact</a>
+      </nav>
+      <div class="menu-title">Actions</div>
+      <div class="cta">
+        <button onclick="document.querySelector('#contact').scrollIntoView({behavior:'smooth'})">Request Demo</button>
+        <p class="pill" style="margin-top:10px;">SOC 2 • GDPR • XAI</p>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main id="home">
+      <section class="hero" aria-label="Hero">
+        <div class="card">
+          <span class="pill">Multimodal AI Fact-Checking</span>
+          <h1>Truth Verified.<br>Everywhere, Instantly.</h1>
+          <p class="lead">CertiFy analyzes text, images, audio, and video together, retrieves credible sources, and produces a transparent <strong>TruthScore™</strong> with full citations.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#demo">Explore Live Demo</a>
+            <a class="btn btn-secondary" href="#api">Open API Playground</a>
+          </div>
+          <div class="kpi" style="margin-top:16px">
+            <div class="box"><div class="badge">Throughput</div><h3>1.5K+ checks/min</h3></div>
+            <div class="box"><div class="badge">Coverage</div><h3>Text • Image • Video • Audio</h3></div>
+            <div class="box"><div class="badge">Explainability</div><h3>Step-by-step Rationales</h3></div>
+          </div>
+        </div>
+        <div class="card" aria-hidden="true">
+          <img src="assets/hero.svg" alt="" style="width:100%;border-radius:12px;border:1px solid var(--line)"/>
+        </div>
+      </section>
+
+      <section id="features" aria-label="Features">
+        <h2>Platform Capabilities</h2>
+        <div class="grid cols-3" style="margin-top:12px">
+          <div class="tile"><h3>Multimodal Analysis</h3><p>Jointly understands claims across text, images, video frames, and audio transcripts.</p></div>
+          <div class="tile"><h3>Cross-Source Verification</h3><p>Retrieves and contrasts evidence from credible outlets, scientific databases, and archives.</p></div>
+          <div class="tile"><h3>TruthScore™ Engine</h3><p>Calibrated 0–100 score with confidence interval and rationale quality indicators.</p></div>
+          <div class="tile"><h3>Explainable Reasoning</h3><p>Auditable chain-of-thought summaries and citation trails for each verdict.</p></div>
+          <div class="tile"><h3>Deepfake & Manipulation Checks</h3><p>Detects inconsistencies, GAN/DF artifacts, and metadata anomalies.</p></div>
+          <div class="tile"><h3>Enterprise Controls</h3><p>RBAC, SSO (OAuth/SAML), audit logs, retention policies, and exportable reports.</p></div>
+        </div>
+      </section>
+
+      <section id="demo" aria-label="Demo">
+        <h2>Live Demo</h2>
+        <p class="lead">Try a sample claim. Click <em>Verify</em> to generate a mock report with TruthScore™ and citations.</p>
+        <div class="grid cols-2">
+          <div class="tile">
+            <label class="sr-only" for="claimInput">Claim</label>
+            <textarea id="claimInput" rows="4" placeholder="Paste a claim here (e.g., “The Eiffel Tower is taller than 300 meters.”)" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:#0e1530;color:var(--ink)"></textarea>
+            <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="verify()">Verify</button>
+              <button class="btn btn-secondary" onclick="loadSample()">Load Sample</button>
+            </div>
+            <pre class="code" id="result" style="margin-top:12px; min-height:140px">Result will appear here…</pre>
+          </div>
+          <div class="tile" aria-hidden="true">
+            <img src="assets/demo.svg" alt="" style="width:100%; border:1px solid var(--line); border-radius:12px"/>
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" aria-label="Pricing">
+        <h2>Pricing</h2>
+        <div class="grid cols-3" style="margin-top:12px">
+          <div class="tile">
+            <h3>Starter</h3>
+            <p class="lead">$0 • Public Portal</p>
+            <ul>
+              <li>10 verifications/day</li>
+              <li>Community evidence</li>
+              <li>Basic explanations</li>
+            </ul>
+          </div>
+          <div class="tile">
+            <h3>Pro</h3>
+            <p class="lead">$49 / month • Studio</p>
+            <ul>
+              <li>Unlimited checks</li>
+              <li>Advanced citations</li>
+              <li>Exportable reports</li>
+            </ul>
+          </div>
+          <div class="tile">
+            <h3>Enterprise</h3>
+            <p class="lead">Custom • API + SSO</p>
+            <ul>
+              <li>RBAC, SSO, audit logs</li>
+              <li>Dedicated support</li>
+              <li>SLA & private deployments</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="integrations" aria-label="Integrations">
+        <h2>Integrations</h2>
+        <div class="grid cols-3">
+          <div class="tile"><h3>Slack &amp; Teams</h3><p>Verify claims in-channel and share evidence packs.</p></div>
+          <div class="tile"><h3>Browser Extensions</h3><p>Contextual fact-checks on posts, videos, and articles.</p></div>
+          <div class="tile"><h3>CMS Plugins</h3><p>WordPress, Ghost, Substack — pre-publish verification.</p></div>
+        </div>
+      </section>
+
+      <section id="security" aria-label="Security">
+        <h2>Security & Compliance</h2>
+        <div class="grid cols-2">
+          <div class="tile"><h3>Data Protection</h3><p>Encryption in transit and at rest, regional storage options, and access controls.</p></div>
+          <div class="tile"><h3>Compliance</h3><p>SOC 2 readiness, GDPR alignment, optional on-prem deployment for sensitive orgs.</p></div>
+        </div>
+      </section>
+
+      <section id="api" aria-label="API">
+        <h2>API — Quick Start</h2>
+        <div class="grid cols-2">
+          <div class="tile">
+            <pre class="code">POST /v1/verify
+Content-Type: application/json
+
+{"claim":"The Eiffel Tower is taller than 300 meters."}</pre>
+            <p style="margin-top:8px" class="lead">Response includes <strong>verdict</strong>, <strong>TruthScore™</strong>, <strong>evidence</strong>, and <strong>explanation</strong>.</p>
+          </div>
+          <div class="tile">
+            <pre class="code" id="apiOut">{
+  "verdict": "Likely True",
+  "truth_score": 96,
+  "evidence": ["…"],
+  "explanation": "…"
+}</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="team" aria-label="Team">
+        <h2>Team</h2>
+        <div class="grid cols-3">
+          <div class="tile"><h3>Aura Yavary</h3><p>Founder & CEO — PhD in Multimodal AI, ex-Amazon AI. Focus: trustworthy AI and agentic workflows.</p></div>
+          <div class="tile"><h3>CTO (Hiring)</h3><p>Lead ML infra, multimodal model serving, and API scale.</p></div>
+          <div class="tile"><h3>Head of Research (Hiring)</h3><p>Explainable AI, causal verification, and dataset quality.</p></div>
+        </div>
+      </section>
+
+      <section id="contact" aria-label="Contact">
+        <h2>Contact</h2>
+        <div class="grid cols-2">
+          <div class="tile">
+            <form onsubmit="event.preventDefault(); alert('Thanks! We will reach out soon.');">
+              <label class="sr-only" for="name">Name</label>
+              <input id="name" placeholder="Your name" required
+                style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0e1530;color:var(--ink);margin-bottom:10px"/>
+              <label class="sr-only" for="email">Email</label>
+              <input id="email" type="email" placeholder="Work email" required
+                style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0e1530;color:var(--ink);margin-bottom:10px"/>
+              <label class="sr-only" for="msg">Message</label>
+              <textarea id="msg" rows="4" placeholder="Tell us about your use case"
+                style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0e1530;color:var(--ink);margin-bottom:10px"></textarea>
+              <button class="btn btn-primary" type="submit">Request Demo</button>
+            </form>
+          </div>
+          <div class="tile">
+            <h3>Press & Partnerships</h3>
+            <p>Email: <a href="mailto:press@certify.ai">press@certify.ai</a></p>
+            <p>Partnerships: <a href="mailto:partners@certify.ai">partners@certify.ai</a></p>
+            <p class="pill">We respond within 24 hours</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer">
+        <div class="logo-inline">
+          <img src="assets/logo.svg" alt="CertiFy logo" width="22" height="22"/>
+          <strong>CertiFy</strong> — Multimodal AI Fact-Checking
+        </div>
+        <div>© 2025 CertiFy • Privacy • Terms • Security</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar toggle (hide/show)
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('menuToggle');
+    let open = true;
+    function applyState(){ 
+      sidebar.classList.toggle('hide', !open);
+      toggleBtn.setAttribute('aria-expanded', String(open));
+    }
+    toggleBtn.addEventListener('click', ()=>{ open = !open; applyState(); });
+    // On small screens: start hidden
+    if (window.matchMedia('(max-width: 980px)').matches){ open = false; applyState(); }
+
+    // Demo logic
+    async function loadSample(){
+      const res = await fetch('assets/sample_report.json').then(r=>r.json());
+      document.getElementById('claimInput').value = res.claim;
+      document.getElementById('result').textContent = JSON.stringify(res, null, 2);
+      document.getElementById('apiOut').textContent = JSON.stringify({
+        verdict: res.verdict, truth_score: res.truth_score, evidence: res.evidence.map(e=>e.source), explanation: res.explanation
+      }, null, 2);
+    }
+    async function verify(){
+      const text = document.getElementById('claimInput').value.trim();
+      if(!text){ alert('Enter a claim first.'); return; }
+      // Mock verification using a simple heuristic
+      const mock = {
+        claim: text,
+        truth_score: Math.floor(70 + Math.random()*30),
+        verdict: (Math.random()>0.3) ? 'Likely True' : 'Uncertain',
+        evidence: [
+          {source:'Trusted Source A', url:'#', excerpt:'…'}, 
+          {source:'Trusted Source B', url:'#', excerpt:'…'}
+        ],
+        explanation: 'Generated by demo logic for illustration. Connect real API to replace this.'
+      };
+      document.getElementById('result').textContent = JSON.stringify(mock, null, 2);
+      document.getElementById('apiOut').textContent = JSON.stringify({
+        verdict: mock.verdict, truth_score: mock.truth_score, evidence: mock.evidence.map(e=>e.source), explanation: mock.explanation
+      }, null, 2);
+    }
+  </script>
+</body>
+</html>
